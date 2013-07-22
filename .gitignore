@@ -1,0 +1,6 @@
+#List of things to ignore.
+
+*.pyc
+*~
+\#*
+.DS_STORE

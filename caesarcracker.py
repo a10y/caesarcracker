@@ -1,3 +1,4 @@
+import re
 
 class CaesarCracker:
     
@@ -22,6 +23,8 @@ class CaesarCracker:
             self.wordlist = wordlist
             
     def do_cipher_shift(self, original_text, shift):
+        #Strip punctuation from the text so that we don't lose possible dictionary matches.
+        #original_text = re.sub(r'[^A-Z|^a-z|\s]', r'', original_text)
         shifted_text = ""
         for word in original_text.split(" "):
             for letter in word:
@@ -38,6 +41,9 @@ class CaesarCracker:
         return shifted_text
 
     def check_percentage_words(self, text):
+        #If we are given an empty string, return 0.0% match
+        if not text:
+            return 0.0
         """
         Computes the percentage of all space-delimited
         words are words contained in the 
@@ -46,9 +52,18 @@ class CaesarCracker:
         hits = 0
         #Lowercase all the words in the string for direct comparison to the wordlist
         for word in [w.lower() for w in text.split(" ")]:
-            wordcount += 1
-            if word in self.wordlist:
-                hits += 1
+            char_only_word = "" #Only count words, not numbers. Also ignores punctuation.
+            for letter in word:
+                if letter in self.letters_lower:
+                    char_only_word += letter
+            if char_only_word:
+                wordcount += 1
+                if char_only_word in self.wordlist:
+                    hits += 1
+        #If we don't have any characters, then this is not a Caesar Cipher. Return 0%.
+        if wordcount <= 0:
+            return 0.0
+        #Else, return the percentage of letter-containing words that are hits in the dictionary
         return float(hits) / wordcount
 
     def crack(self, ciphertext):
